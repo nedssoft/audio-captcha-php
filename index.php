@@ -4,7 +4,13 @@ $status = '';
 
 if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
     // Validation: Checking entered captcha code with the generated captcha code
-    if (strcasecmp($_SESSION['captcha'], $_POST['captcha']) != 0) {
+
+    // trim the captcha input
+    $captcha = trim($_POST['captcha']);
+    // Sanitize and strip accent
+    $captcha = iconv('UTF-8', 'ASCII//TRANSLIT', $captcha);
+    
+    if (strcmp($_SESSION['captcha'], $captcha) != 0) {
         // Note: the captcha code is compared case insensitively.
         // if you want case sensitive match, update the check above to strcmp()
         $status = "<p class='status' style='color:#FFFFFF; font-size:20px'><span style='background-color:#FF0000;'>Wrong captcha!!, try again</span></p>";

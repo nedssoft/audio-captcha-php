@@ -6,9 +6,10 @@ session_start();
 
 class Captcha 
 {
+	
 	const CAPTCHA_IMAGE_HEIGHT = 50;
 	const CAPTCHA_IMAGE_WIDTH = 300;
-	const TOTAL_CHARACTERS_ON_IMAGE = 3;
+	const TOTAL_WORDS_ON_IMAGE = 3;
 	const POSSIBLE_WORDS = ['coMe', 'Go', 'caT', 'Zap', 'eat', 'sHit', 'fUck', 'sIp', 'liP'];
 	const RANDOM_CAPTCHA_DOTS = 50;
 	const RANDOM_CAPTCHA_LINES = 25;
@@ -16,9 +17,9 @@ class Captcha
 	const CAPTCHA_NOISE_COLOR = "142864";
 	const CAPTCHA_FONT = './fonts/raphtalia.ttf';
 
-	protected $captcha_code = '';
-	protected $captcha_image = '';
-	protected $image_noise_color = '';
+	private $captcha_code = '';
+	private $captcha_image = '';
+	private $image_noise_color = '';
 
 	public function __construct()
 	{
@@ -27,10 +28,13 @@ class Captcha
 		$this->applyColors();
 		$this->applyNoise();
 	}
-
-	private function generateCode()
+	
+	/**
+	 * Generate the words on the captcha image
+	 */
+	private function generateCode(): void
 	{
-		$rand = array_rand(self::POSSIBLE_WORDS, 3);
+		$rand = array_rand(self::POSSIBLE_WORDS, self::TOTAL_WORDS_ON_IMAGE);
 		$v1 = $rand[0];
 		$v2 = $rand[1];
 		$v3 = $rand[2];
@@ -38,28 +42,41 @@ class Captcha
 		$this->captcha_code = self::POSSIBLE_WORDS[$v1] . ' ' . self::POSSIBLE_WORDS[$v2] . ' ' . self::POSSIBLE_WORDS[$v3];
 	}
 
-	private function createImage()
+	/**
+	 * Create the captcha image
+	 */
+	private function createImage(): void
 	{
 		$this->captcha_image = @imagecreate(
 			self::CAPTCHA_IMAGE_WIDTH,
 			self::CAPTCHA_IMAGE_HEIGHT
 		);
 	}
-
+   
+	/**
+	 * Calculate the font size of the captcha characters
+	 */
 	public static function fontSize()
 	{
 		return self::CAPTCHA_IMAGE_HEIGHT * 0.65;
 	}
 
+	/**
+	 * Add background image to the captcha image
+	 */
 	public function backgroundColor()
 	{
 		return imagecolorallocate(
 			$this->captcha_image,
-			255,
-			255,
-			255
+			100,
+			120,
+			130
 		);
 	}
+
+	/**
+	 * Generate the text color of the captcha image
+	 */
 	public function textColor()
 	{
 		[$red, $green, $blue] = $this->hexToRgb(self::CAPTCHA_TEXT_COLOR);
@@ -71,6 +88,9 @@ class Captcha
 		);
 	}
 
+	/**
+	 * Generate noise background color for the image
+	 */
 	public function noiseColor()
 	{
 		[$red, $green, $blue] = $this->hexToRgb(self::CAPTCHA_NOISE_COLOR);
@@ -81,20 +101,26 @@ class Captcha
 			$blue
 		);
 	}
-
-	public function hexToRgb($hex)
+  
+	/**
+	 * Convert hex color to RGB color
+	 */
+	public function hexToRgb(string $hex): array
 	{
 		return array_map('hexdec', str_split($hex, 2));
 	}
-
-	private function applyColors()
+ 
+	/**
+	 * Apply the background color and noise color
+	 */
+	private function applyColors(): void
 	{
 		$this->backgroundColor();
 		$this->noiseColor();
 	}
 
 	/* Generate random dots in background of the captcha image */
-	private function generateDots()
+	private function generateDots(): void
 	{
 		for ($count = 0; $count < self::RANDOM_CAPTCHA_DOTS; $count++) {
 			imagefilledellipse(
@@ -108,7 +134,9 @@ class Captcha
 		}
 	}
 
-	/* Generate random lines in background of the captcha image */
+	/* 
+	* Generate random lines in background of the captcha image 
+	*/
 	private function generateLines()
 	{
 		for ($count = 0; $count < self::RANDOM_CAPTCHA_LINES; $count++) {
@@ -122,13 +150,20 @@ class Captcha
 			);
 		}
 	}
-
+	
+	/**
+	 * Apply the noise effect
+	 */
 	public function applyNoise()
 	{
 		$this->generateDots();
 		$this->generateLines();
 	}
 
+	/**
+	 * Now that all the tools are set
+	 * Let us generate the captcha image and render on the browser
+	 */
 	public function generateCaptcha()
 	{
 		/* Create a text box and add 3 captcha words code in it */
@@ -155,15 +190,20 @@ class Captcha
 		imagejpeg($this->captcha_image);
 
 		imagedestroy($this->captcha_image); //destroying the image instance
+
 		$_SESSION['captcha'] = $this->captcha_code;
 
+		// Delete the previous captcha audio if it exists
 		if (file_exists('audio.mp3')) {
 			unlink('audio.mp3');
 		}
-
+		 
+		// Now that the captcha is generated, let us also generate the audio
+		// to accommodate everyone
 		(new TextToSpeech($this->captcha_code))();
 	}
 }
 
+// Instantiate the Captcha class and generate the captcha
 (new Captcha())->generateCaptcha();
 
