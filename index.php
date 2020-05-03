@@ -21,23 +21,79 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Captcha</title>
     <style>
-        body, html {
-            width: 100%;
+        * {
+            padding: 0;
+            margin: 0;
         }
+        html {
+            font-size: 62.5%;
+        }
+        body,
+        html {
+            width: 100vw;
+            height: 100%;
+
+        }
+
+        .container {
+             width: 100%;
+            height: 100%;
+            
+        }  
+
+        section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 400px;
+            margin: 50px auto;
+        }
+
+        audio {
+            height: 20px;
+        }
+
+        @media (max-width:500px) {
+            section {
+                width: 100%;
+            }
+        }
+
+        .header {
+            width: 100%;
+            height: 100px;
+            background: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .header h1 {
+            text-align: center;
+            margin: auto;
+        }
+   
     </style>
 </head>
 
 <body>
-    <h1>A Captcha Implementation With Audio</h1>
-    <?php echo $status; ?>
-    <form name="form" method="post" action="">
-        <label><strong>Enter Captcha:</strong></label><br />
-        <input type="text" name="captcha" />
-        <p><br /><img src="captcha.php?rand=<?php echo rand(); ?>" id='captcha_image'></p>
-        <p>Can't read the image? <a href='javascript: refreshCaptcha();'>click here</a> to refresh</p>
-        <p> <audio src="audio.mp3?rand=<?php echo rand(); ?>" id="audio" controls></audio></p>
-        <input type="submit" name="submit" value="Submit">
-    </form>
+    <div class="container">
+        <header class="header">
+            <h1>A Captcha Implementation With Audio</h1>
+        </header>
+        <section class="">
+            <p><?= $status; ?></p>
+            <form name="form" method="post" action="">
+                <label><strong>Enter Captcha:</strong></label><br />
+                    <input type="text" name="captcha" />
+                    <p><br /><img src="captcha.php?rand=<?= rand(); ?>" id='captcha_image'></p>
+                    <p>Can't read the image? <a href='javascript: refreshCaptcha();'>click here</a> to refresh</p>
+                    <p> <audio src="audio.mp3?rand=<?php echo rand(); ?>" id="audio" controls></audio></p>
+                    <input type="submit" name="submit" value="Submit">
+            </form>
+        </section>
+    </div>
 
     <script>
         //Refresh Captcha
