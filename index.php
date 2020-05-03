@@ -10,7 +10,7 @@ $_SESSION['CSRF_Token'] = $csrf_token;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Captcha</title>
+    <title>Text - Audio Captcha Generator</title>
     <style>
         * {
             padding: 0;
@@ -113,7 +113,7 @@ $_SESSION['CSRF_Token'] = $csrf_token;
 <body>
     <div class="container">
         <header class="header">
-            <h1>A Captcha Implementation With Audio</h1>
+            <h1>Text - Audio Captcha Generator</h1>
         </header>
         <section class="">
             <?= $status; ?>

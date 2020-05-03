@@ -10,7 +10,7 @@ class Captcha
 	const CAPTCHA_IMAGE_HEIGHT = 50;
 	const CAPTCHA_IMAGE_WIDTH = 300;
 	const TOTAL_WORDS_ON_IMAGE = 3;
-	const POSSIBLE_WORDS = ['coMe', 'Go', 'caT', 'Zap', 'eat', 'sHit', 'fUck', 'sIp', 'liP'];
+	const POSSIBLE_WORDS = ['coMe', 'Go', 'caT', 'Zap', 'eat', 'leAp', 'meME', 'sIp', 'liP'];
 	const RANDOM_CAPTCHA_DOTS = 50;
 	const RANDOM_CAPTCHA_LINES = 25;
 	const CAPTCHA_TEXT_COLOR = "142864";

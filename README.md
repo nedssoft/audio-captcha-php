@@ -25,6 +25,10 @@ The audio enables users with visual impairment to access the feature
 - Once you have completed the installation steps above
 - Visit http://localhost:8000 on the browser to test the captcha
 
+## Sample running application
+
+![](./captch-img.png)
+
 ## Core Features
 - Captcha input is sanitized to strip strip accents
 - Should be able to validate captcha input coming from different languages i.e Chinese, Greece, French etc
