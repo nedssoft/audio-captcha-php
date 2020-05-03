@@ -1,24 +1,9 @@
 <?php
-session_start();
-$status = '';
-
-if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
-    // Validation: Checking entered captcha code with the generated captcha code
-
-    // trim the captcha input
-    $captcha = trim($_POST['captcha']);
-    // Sanitize and strip accent
-    $captcha = iconv('UTF-8', 'ASCII//TRANSLIT', $captcha);
-    
-    if (strcmp($_SESSION['captcha'], $captcha) != 0) {
-        // Note: the captcha code is compared case insensitively.
-        // if you want case sensitive match, update the check above to strcmp()
-        $status = "<p class='status' style='color:#FFFFFF; font-size:20px'><span style='background-color:#FF0000;'>Wrong captcha!!, try again</span></p>";
-    } else {
-        $status = "<p class='status' style='color:#FFFFFF; font-size:20px'><span style='background-color:#46ab4a;'>Correct captcha!!</span></p>";
-    }
-}
+include_once('confirm_captcha.php');
+$csrf_token = bin2hex(random_bytes(32));
+$_SESSION['CSRF_Token'] = $csrf_token;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,9 +16,11 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
             padding: 0;
             margin: 0;
         }
+
         html {
             font-size: 62.5%;
         }
+
         body,
         html {
             width: 100vw;
@@ -42,10 +29,10 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
         }
 
         .container {
-             width: 100%;
+            width: 100%;
             height: 100%;
-            
-        }  
+
+        }
 
         section {
             display: flex;
@@ -77,10 +64,12 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
             justify-content: center;
             align-items: center;
         }
+
         .header h1 {
             text-align: center;
             margin: auto;
         }
+
         section form {
             width: 100%;
             display: flex;
@@ -93,30 +82,31 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
         form input {
             outline: none;
             width: 60%;
-            padding:0.5rem;
+            padding: 0.5rem;
             border-radius: 6px;
-            font-size:1.2rem;
+            font-size: 1.2rem;
             border: 1px solid #15202b;
         }
 
         form button {
             width: 40%;
             padding: 0.5rem;
-            border-radius:6px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size:1.5rem;
+            font-size: 1.5rem;
             border: 1px solid #15202b;
             outline: none;
         }
+
         form button:hover {
-            background:  #15202b;
+            background: #15202b;
             transition: 0.2s ease-in-out;
             color: #ffffff;
         }
+
         label {
             margin-top: 0.5rem;
         }
-   
     </style>
 </head>
 
@@ -129,11 +119,12 @@ if (isset($_POST['captcha']) && ($_POST['captcha'] != "")) {
             <?= $status; ?>
             <form name="form" method="post" action="">
                 <label><strong>Enter Captcha:</strong></label>
-                    <input type="text" name="captcha" />
-                    <p><br /><img src="captcha.php?rand=<?= rand(); ?>" id='captcha_image'></p>
-                    <p>Can't read the image? <a href='javascript: refreshCaptcha();'>click here</a> to refresh</p>
-                    <p> <audio src="audio.mp3?rand=<?php echo rand(); ?>" id="audio" width="100px" controls></audio></p>
-                    <button name="submit">Verify</button>
+                <input type="text" name="captcha" />
+                <p><br /><img src="captcha.php?rand=<?= rand(); ?>" id='captcha_image'></p>
+                <p>Can't read the image? <a href='javascript: refreshCaptcha();'>click here</a> to refresh</p>
+                <p> <audio src="audio.mp3?rand=<?php echo rand(); ?>" id="audio" width="100px" controls></audio></p>
+                <input type="hidden" name="_token" value="<?= $csrf_token ?>" />
+                <button name="submit">Verify</button>
             </form>
         </section>
     </div>
