@@ -3,127 +3,167 @@
 require_once('audio.php');
 
 session_start();
-//You can customize your captcha settings here
 
-$captcha_code = '';
-$captcha_image_height = 50;
-$captcha_image_width = 300;
-$total_characters_on_image = 3;
+class Captcha 
+{
+	const CAPTCHA_IMAGE_HEIGHT = 50;
+	const CAPTCHA_IMAGE_WIDTH = 300;
+	const TOTAL_CHARACTERS_ON_IMAGE = 3;
+	const POSSIBLE_WORDS = ['coMe', 'Go', 'caT', 'Zap', 'eat', 'sHit', 'fUck', 'sIp', 'liP'];
+	const RANDOM_CAPTCHA_DOTS = 50;
+	const RANDOM_CAPTCHA_LINES = 25;
+	const CAPTCHA_TEXT_COLOR = "142864";
+	const CAPTCHA_NOISE_COLOR = "142864";
+	const CAPTCHA_FONT = './fonts/raphtalia.ttf';
 
-//The characters that can be used in the CAPTCHA code.
-//avoid all confusing characters and numbers (For example: l, 1 and i)
-// $possible_captcha_letters = 'bcdfghjkmnpqrstvwxyz23456789';
-$possible_words = ['come', 'go', 'cat', 'zap', 'eat', 'shit', 'fuck'];
-// $captcha_font = 'monofont.ttf';
-// $captcha_font = 'Amputee_Type.ttf';
-// $captcha_font = 'xander.ttf';
-$captcha_font = 'Jspacker.ttf';
+	protected $captcha_code = '';
+	protected $captcha_image = '';
+	protected $image_noise_color = '';
 
-$random_captcha_dots = 50;
-$random_captcha_lines = 25;
-$captcha_text_color = "0x142864";
-$captcha_noise_color = "0x142864";
+	public function __construct()
+	{
+		$this->generateCode();
+		$this->createImage();
+		$this->applyColors();
+		$this->applyNoise();
+	}
 
+	private function generateCode()
+	{
+		$rand = array_rand(self::POSSIBLE_WORDS, 3);
+		$v1 = $rand[0];
+		$v2 = $rand[1];
+		$v3 = $rand[2];
 
+		$this->captcha_code = self::POSSIBLE_WORDS[$v1] . ' ' . self::POSSIBLE_WORDS[$v2] . ' ' . self::POSSIBLE_WORDS[$v3];
+	}
 
-$rand = array_rand($possible_words, 3);
-$v1 = $rand[0];
-$v2 = $rand[1];
-$v3 = $rand[2];
-$captcha_code = "$possible_words[$v1] $possible_words[$v2] $possible_words[$v3]";
+	private function createImage()
+	{
+		$this->captcha_image = @imagecreate(
+			self::CAPTCHA_IMAGE_WIDTH,
+			self::CAPTCHA_IMAGE_HEIGHT
+		);
+	}
 
+	public static function fontSize()
+	{
+		return self::CAPTCHA_IMAGE_HEIGHT * 0.65;
+	}
 
-$captcha_font_size = $captcha_image_height * 0.65;
-$captcha_image = @imagecreate(
-	$captcha_image_width,
-	$captcha_image_height
-	);
+	public function backgroundColor()
+	{
+		return imagecolorallocate(
+			$this->captcha_image,
+			255,
+			255,
+			255
+		);
+	}
+	public function textColor()
+	{
+		[$red, $green, $blue] = $this->hexToRgb(self::CAPTCHA_TEXT_COLOR);
+		return imagecolorallocate(
+			$this->captcha_image,
+			$red,
+			$green,
+			$blue
+		);
+	}
 
-/* setting the background, text and noise colours here */
-$background_color = imagecolorallocate(
-	$captcha_image,
-	255,
-	255,
-	255
-	);
+	public function noiseColor()
+	{
+		[$red, $green, $blue] = $this->hexToRgb(self::CAPTCHA_NOISE_COLOR);
+		$this->image_noise_color = imagecolorallocate(
+			$this->captcha_image,
+			$red,
+			$green,
+			$blue
+		);
+	}
 
-$array_text_color = hextorgb($captcha_text_color);
-$captcha_text_color = imagecolorallocate(
-	$captcha_image,
-	$array_text_color['red'],
-	$array_text_color['green'],
-	$array_text_color['blue']
-	);
+	public function hexToRgb($hex)
+	{
+		return array_map('hexdec', str_split($hex, 2));
+	}
 
-$array_noise_color = hextorgb($captcha_noise_color);
-$image_noise_color = imagecolorallocate(
-	$captcha_image,
-	$array_noise_color['red'],
-	$array_noise_color['green'],
-	$array_noise_color['blue']
-	);
+	private function applyColors()
+	{
+		$this->backgroundColor();
+		$this->noiseColor();
+	}
 
-/* Generate random dots in background of the captcha image */
-for( $count=0; $count<$random_captcha_dots; $count++ ) {
-imagefilledellipse(
-	$captcha_image,
-	mt_rand(0,$captcha_image_width),
-	mt_rand(0,$captcha_image_height),
-	2,
-	3,
-	$image_noise_color
-	);
+	/* Generate random dots in background of the captcha image */
+	private function generateDots()
+	{
+		for ($count = 0; $count < self::RANDOM_CAPTCHA_DOTS; $count++) {
+			imagefilledellipse(
+				$this->captcha_image,
+				mt_rand(0, self::CAPTCHA_IMAGE_WIDTH),
+				mt_rand(0, self::CAPTCHA_IMAGE_HEIGHT),
+				2,
+				3,
+				$this->image_noise_color
+			);
+		}
+	}
+
+	/* Generate random lines in background of the captcha image */
+	private function generateLines()
+	{
+		for ($count = 0; $count < self::RANDOM_CAPTCHA_LINES; $count++) {
+			imageline(
+				$this->captcha_image,
+				mt_rand(0, self::CAPTCHA_IMAGE_WIDTH),
+				mt_rand(0, self::CAPTCHA_IMAGE_HEIGHT),
+				mt_rand(0, self::CAPTCHA_IMAGE_WIDTH),
+				mt_rand(0, self::CAPTCHA_IMAGE_HEIGHT),
+				$this->image_noise_color
+			);
+		}
+	}
+
+	public function applyNoise()
+	{
+		$this->generateDots();
+		$this->generateLines();
+	}
+
+	public function generateCaptcha()
+	{
+		/* Create a text box and add 3 captcha words code in it */
+		$text_box = imagettfbbox(
+			self::fontSize(),
+			0,
+			self::CAPTCHA_FONT,
+			$this->captcha_code
+		);
+		$x = (self::CAPTCHA_IMAGE_WIDTH - $text_box[4]) / 2;
+		$y = (self::CAPTCHA_IMAGE_HEIGHT - $text_box[5]) / 2;
+
+		imagettftext(
+			$this->captcha_image,
+			self::fontSize(),
+			0,
+			$x,
+			$y,
+			$this->textColor(),
+			self::CAPTCHA_FONT,
+			$this->captcha_code
+		);
+		header('Content-Type: image/jpeg');
+		imagejpeg($this->captcha_image);
+
+		imagedestroy($this->captcha_image); //destroying the image instance
+		$_SESSION['captcha'] = $this->captcha_code;
+
+		if (file_exists('audio.mp3')) {
+			unlink('audio.mp3');
+		}
+
+		(new TextToSpeech($this->captcha_code))();
+	}
 }
 
-/* Generate random lines in background of the captcha image */
-for( $count=0; $count<$random_captcha_lines; $count++ ) {
-imageline(
-	$captcha_image,
-	mt_rand(0,$captcha_image_width),
-	mt_rand(0,$captcha_image_height),
-	mt_rand(0,$captcha_image_width),
-	mt_rand(0,$captcha_image_height),
-	$image_noise_color
-	);
-}
+(new Captcha())->generateCaptcha();
 
-/* Create a text box and add 6 captcha letters code in it */
-$text_box = imagettfbbox(
-	$captcha_font_size,
-	0,
-	$captcha_font,
-	$captcha_code
-	); 
-$x = ($captcha_image_width - $text_box[4])/2;
-$y = ($captcha_image_height - $text_box[5])/2;
-imagettftext(
-	$captcha_image,
-	$captcha_font_size,
-	0,
-	$x,
-	$y,
-	$captcha_text_color,
-	$captcha_font,
-	$captcha_code
-	);
-
-/* Show captcha image in the html page */
-// defining the image type to be shown in browser widow
-header('Content-Type: image/jpeg'); 
-imagejpeg($captcha_image); 
-
-imagedestroy($captcha_image); //destroying the image instance
-$_SESSION['captcha'] = $captcha_code;
-
-if ( file_exists('audio.mp3')) {
-	unlink('audio.mp3');
-}
-
-textToSpeech($captcha_code);
-
-function hextorgb ($hexstring){
-  $integar = hexdec($hexstring);
-  return array("red" => 0xFF & ($integar >> 0x10),
-               "green" => 0xFF & ($integar >> 0x8),
-               "blue" => 0xFF & $integar);
-			   }
