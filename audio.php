@@ -45,3 +45,44 @@ function textToSpeech($text)
     // the response's audioContent is binary
     file_put_contents("audio.mp3", $audioContent);
 }
+
+class TextToSpeech
+{
+
+    public function __construct(string $text)
+    {
+        $this->text = $text;
+    }
+
+
+    public function __invoke()
+    {
+        
+        $client = new TextToSpeechClient();
+        $synthesisInputText = (new SynthesisInput())
+            ->setText($this->text);
+
+        // build the voice request, select the language code ("en-US") and the ssml
+        // voice gender
+        $voice = (new VoiceSelectionParams())
+            ->setLanguageCode('en-US')
+            ->setSsmlGender(SsmlVoiceGender::FEMALE);
+
+        // Effects profile
+        $effectsProfileId = "telephony-class-application";
+
+        // select the type of audio file you want returned
+        $audioConfig = (new AudioConfig())
+            ->setAudioEncoding(AudioEncoding::MP3)
+            ->setEffectsProfileId(array($effectsProfileId));
+
+        // perform text-to-speech request on the text input with selected voice
+        // parameters and audio file type
+        $response = $client->synthesizeSpeech($synthesisInputText, $voice, $audioConfig);
+        $audioContent = $response->getAudioContent();
+
+        // the response's audioContent is binary
+        file_put_contents("audio.mp3", $audioContent);
+        
+    }
+}
