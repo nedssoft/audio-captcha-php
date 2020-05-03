@@ -14,7 +14,10 @@ $total_characters_on_image = 3;
 //avoid all confusing characters and numbers (For example: l, 1 and i)
 // $possible_captcha_letters = 'bcdfghjkmnpqrstvwxyz23456789';
 $possible_words = ['come', 'go', 'cat', 'zap', 'eat', 'shit', 'fuck'];
-$captcha_font = 'monofont.ttf';
+// $captcha_font = 'monofont.ttf';
+// $captcha_font = 'Amputee_Type.ttf';
+// $captcha_font = 'xander.ttf';
+$captcha_font = 'Jspacker.ttf';
 
 $random_captcha_dots = 50;
 $random_captcha_lines = 25;
@@ -23,19 +26,6 @@ $captcha_noise_color = "0x142864";
 
 
 
-
-// while (count($captcha_code) < $total_characters_on_image) { 
-// 	$index = mt_rand(0, count($possible_words) - 1);
-// 	$val = $possible_words[$index];
-
-// 	if (!in_array($val, $captcha_code)) {
-// 		array_push($captcha_code, $val);
-// 		unset($possible_words[$index]);
-// 	}
-
-// }
-
-// $captcha_code = implode(' ', $captcha_code);
 $rand = array_rand($possible_words, 3);
 $v1 = $rand[0];
 $v2 = $rand[1];
