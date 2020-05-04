@@ -57,32 +57,34 @@ class TextToSpeech
 
     public function __invoke()
     {
-        
-        $client = new TextToSpeechClient();
-        $synthesisInputText = (new SynthesisInput())
-            ->setText($this->text);
 
-        // build the voice request, select the language code ("en-US") and the ssml
-        // voice gender
-        $voice = (new VoiceSelectionParams())
-            ->setLanguageCode('en-US')
-            ->setSsmlGender(SsmlVoiceGender::FEMALE);
+        try {
+            $client = new TextToSpeechClient();
+            $synthesisInputText = (new SynthesisInput())
+                ->setText($this->text);
 
-        // Effects profile
-        $effectsProfileId = "telephony-class-application";
+            // build the voice request, select the language code ("en-US") and the ssml
+            // voice gender
+            $voice = (new VoiceSelectionParams())
+                ->setLanguageCode('en-US')
+                ->setSsmlGender(SsmlVoiceGender::FEMALE);
 
-        // select the type of audio file you want returned
-        $audioConfig = (new AudioConfig())
-            ->setAudioEncoding(AudioEncoding::MP3)
-            ->setEffectsProfileId(array($effectsProfileId));
+            // Effects profile
+            $effectsProfileId = "telephony-class-application";
 
-        // perform text-to-speech request on the text input with selected voice
-        // parameters and audio file type
-        $response = $client->synthesizeSpeech($synthesisInputText, $voice, $audioConfig);
-        $audioContent = $response->getAudioContent();
+            // select the type of audio file you want returned
+            $audioConfig = (new AudioConfig())
+                ->setAudioEncoding(AudioEncoding::MP3)
+                ->setEffectsProfileId(array($effectsProfileId));
 
-        // the response's audioContent is binary
-        file_put_contents("audio.mp3", $audioContent);
-        
+            // perform text-to-speech request on the text input with selected voice
+            // parameters and audio file type
+            $response = $client->synthesizeSpeech($synthesisInputText, $voice, $audioConfig);
+            $audioContent = $response->getAudioContent();
+
+            // the response's audioContent is binary
+            file_put_contents("audio.mp3", $audioContent);
+        } catch (\Exception $e) {
+        }
     }
 }

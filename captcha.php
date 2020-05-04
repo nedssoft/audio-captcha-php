@@ -47,10 +47,14 @@ class Captcha
 	 */
 	private function createImage(): void
 	{
-		$this->captcha_image = @imagecreate(
-			self::CAPTCHA_IMAGE_WIDTH,
-			self::CAPTCHA_IMAGE_HEIGHT
-		);
+		try {
+			$this->captcha_image = imagecreate(
+				self::CAPTCHA_IMAGE_WIDTH,
+				self::CAPTCHA_IMAGE_HEIGHT
+			);
+		} catch(\Exception $e) {
+			die($e->getMessage());
+		}
 	}
    
 	/**
