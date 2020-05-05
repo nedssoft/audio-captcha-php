@@ -15,7 +15,7 @@ class Captcha
 	const RANDOM_CAPTCHA_LINES = 25;
 	const CAPTCHA_TEXT_COLOR = "142864";
 	const CAPTCHA_NOISE_COLOR = "142864";
-	const CAPTCHA_FONT = './fonts/raphtalia.ttf';
+	const CAPTCHA_FONT = __DIR__.'/fonts/raphtalia.ttf';
 
 	private $captcha_code = '';
 	private $captcha_image = '';
